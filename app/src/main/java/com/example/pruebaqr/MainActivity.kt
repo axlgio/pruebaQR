@@ -4,9 +4,10 @@ import android.content.pm.PackageManager
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.SparseArray
-import android.view.Surface
+
 import android.view.SurfaceHolder
-import android.widget.Space
+
+import android.widget.TextView
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -16,18 +17,22 @@ import com.google.android.gms.vision.Detector
 import com.google.android.gms.vision.barcode.Barcode
 import com.google.android.gms.vision.barcode.BarcodeDetector
 import kotlinx.android.synthetic.main.activity_main.*
-import java.util.jar.Manifest
+
 
 class MainActivity : AppCompatActivity() {
 
     private val requestCodeCameraPermission = 1001
     private lateinit var cameraSource: CameraSource
     private lateinit var detector: BarcodeDetector
+    private lateinit var txt_result: TextView
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        txt_result = findViewById(R.id.resultQR)
+
         if (ContextCompat.checkSelfPermission(this@MainActivity, android.Manifest.permission.CAMERA ) != PackageManager.PERMISSION_GRANTED){
 
             askForCameraPermission()
@@ -104,20 +109,19 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private val processor : object : Detector.Processor<Barcode>{
+    private val processor = object : Detector.Processor<Barcode>{
         override fun release() {
 
         }
 
         override fun receiveDetections(detections: Detector.Detections<Barcode>?) {
 
-                if (detections != null && detections.detectedItems.isNotEmpty())
-                {
+                if (detections != null) {
                     val qrCodes: SparseArray<Barcode> = detections.detectedItems
                     val code = qrCodes.valueAt(0)
-                    textScanResult.text = code.displayValue
+                    txt_result.text = code.displayValue
                 }else{
-                    textScanResult.text = ""
+                    txt_result.text = ""
 
                 }
         }
